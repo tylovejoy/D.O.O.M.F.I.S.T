@@ -5,10 +5,15 @@ globalvar AbilityCount  # array[int] = [upper, slam, punch]
 globalvar Positions  # array of start/end vect
 globalvar Effects  # array of Checkpoint rings
 globalvar Scoreboard  # string
+globalvar GameLength
 
 playervar State  # int 0=not started, 1=failed, 2=success
 playervar Points  # int
 playervar AbilityCount  # array[int] = [upper, slam, punch] copy of globalvar
+
+
+rule "Workshop Settings":
+    GameLength = createWorkshopSetting(enum["DOOMFIST", "DOOM"], "Settings", "Game Length", 0, 0)
 
 
 rule "Initialize Gamemode":
@@ -26,7 +31,7 @@ rule "Initialize Gamemode":
 
 def scoreboardGenerate():
     for TempIter in range(len(getAllPlayers())):
-        Scoreboard += "{0}\n{1}\n".format(getAllPlayers()[TempIter], "DOOMFIST".substring(0, getAllPlayers()[TempIter].Points))
+        Scoreboard += "{0}\n{1}\n".format(getAllPlayers()[TempIter], GameLength.substring(0, getAllPlayers()[TempIter].Points))
 
 def queueCycle():
     # After each round, progress the queue.
@@ -186,7 +191,7 @@ rule "HUD":
 
 rule "DOOMFIST Loser":
     @Event eachPlayer
-    @Condition eventPlayer.Points == 8
+    @Condition eventPlayer.Points == strLen(GameLength)
     eventPlayer.setRespawnTime(9999)
     kill(eventPlayer, null)
 
