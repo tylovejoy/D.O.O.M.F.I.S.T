@@ -5,7 +5,7 @@ globalvar AbilityCount  # array[int] = [upper, slam, punch]
 globalvar Positions  # array of start/end vect
 globalvar Effects  # array of Checkpoint rings
 globalvar Scoreboard  # string
-globalvar GameLength
+globalvar GameLength  # Workshop Setting DOOM vs DOOMFIST
 
 playervar State  # int 0=not started, 1=failed, 2=success
 playervar Points  # int
@@ -13,7 +13,7 @@ playervar AbilityCount  # array[int] = [upper, slam, punch] copy of globalvar
 
 
 rule "Workshop Settings":
-    GameLength = createWorkshopSetting(enum["DOOMFIST", "DOOM"], "Settings", "Game Length", 0, 0)
+    GameLength = createWorkshopSetting(enum["DOOMFIST", "DOOFIST", "DOFIST", "DBRUG" "DOOM"], "Settings", "Game Length", 0, 0)
 
 
 rule "Initialize Gamemode":
@@ -77,10 +77,7 @@ rule "Round End":
     @Condition InProgress
     @Condition all([p.State for p in getAllPlayers()])
 
-    # Reset State tracker
-    for TempIter in range(len(getAllPlayers())):
-        getAllPlayers()[TempIter].State = 0
-
+    getAllPlayers().State = 0    
     enableAbilities()
     InProgress = false
     AbilityCount = [0, 0, 0]
@@ -92,7 +89,7 @@ rule "Round End":
 
 def roundStart():
     InProgress = true
-    AbilityCount = Queue[0].AbilityCount
+    getAllPlayers().AbilityCount = AbilityCount
     setAbilities()
     # Tele all players to starting position
     getAllPlayers().teleport(Queue[0].getPosition())
@@ -124,11 +121,11 @@ rule "Ability Count Increment -- PRE ROUND":
     @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) or eventPlayer.isHoldingButton(Button.ABILITY_1) or eventPlayer.isHoldingButton(Button.ABILITY_2)
 
     if eventPlayer.isUsingAbility1():
-        eventPlayer.AbilityCount[0] += 1
+        AbilityCount[0] += 1
     elif eventPlayer.isUsingAbility2():
-        eventPlayer.AbilityCount[1] += 1
+        AbilityCount[1] += 1
     elif eventPlayer.isFiringSecondaryFire():
-        eventPlayer.AbilityCount[2] += 1
+        AbilityCount[2] += 1
 
 
 rule "Ability Count Decrement -- DURING ROUND":
